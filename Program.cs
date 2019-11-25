@@ -25,12 +25,26 @@ namespace regexDirScan
             }
         }
 		
+		static int Comparison(IComparable[] v1, IComparable[] v2)
+		{
+			if(v1.Length != v2.Length)
+				throw new Exception("Unexpected logic error: length not equal");
+			foreach(var elem in v1.Zip(v2, (o1, o2) => new []{o1, o2}))
+			{
+				var elemCompareResult = elem[0].CompareTo(elem[1]);
+				if(elemCompareResult == 0)
+					continue;
+				return elemCompareResult;
+			}
+			return 0;
+		}
+		
 		static IEnumerable<string> SubmatchesOrdering(List<KeyValuePair<string, IComparable[]>> matched)
 		{
 			if(!matched.Any())
 				return Enumerable.Empty<string>();
 			if(matched.First().Value.Any())
-				matched.Sort((v1, v2) => v1.Value.AsSpan().SequenceCompareTo(v2.Value));
+				matched.Sort((v1, v2) => Comparison(v1.Value, v2.Value));
 			return matched.Select(kv => kv.Key);
 		}
 
